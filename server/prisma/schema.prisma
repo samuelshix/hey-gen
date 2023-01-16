@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgres://postgres:postgres@localhost:5432/twitter-oauth2"
+}
+
+enum UserType {
+  local
+  twitter
+}
+
+model User {
+  id       String   @id @default(uuid())
+  name     String
+  username String   @unique
+  type     UserType @default(local)
+}
