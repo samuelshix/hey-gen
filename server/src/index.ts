@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import jwt from 'jsonwebtoken'
-import { getTwitterUser, twitterOauth } from "./oauth2";
+import { getTwitterUser, twitterOauth, writeTweet } from "./oauth2";
 import { User } from "@prisma/client";
 
 const app = express();
@@ -68,6 +68,21 @@ app.get('/twitter/logout', async (req, res) => {
   }
 })
 
+app.get('/tweet', async (req, res) => {
+  console.log('Tweeting...')
+  try {
+    const token = req.cookies[COOKIE_NAME];
+    if (!token) {
+      throw new Error("Not Authenticated");
+    }
+    const payload = await jwt.verify(token, JWT_SECRET) as UserJWTPayload;
+    const tweet = await writeTweet(payload.accessToken, req.query.text as string)
+    res.json(tweet)
+    console.log(tweet)
+  } catch (err) {
+    res.status(401).json("Not Authenticated")
+  }
+})
 // activate twitterOauth function when visiting the route 
 app.get("/oauth/twitter", twitterOauth);
 
